@@ -1,0 +1,64 @@
+---
+title: "Maintenance Notes"
+subtitle: "Exploring CO2 emissions across time"
+date: "4/12/2021"
+---
+
+# Exercise chunks
+## Data Wrangling
+* `DW_Code1`
+* `DW_Code2`
+* `DW_Quiz`
+* `DW_Exercise1`
+
+## Data Visualization
+* `DV_Code1`
+* `DV_Code2`
+* `DV_Quiz`
+* `DV_Exercise1`
+
+## Analysis
+* `DA_Quiz`
+
+## Other notes
+### Set `eval = FALSE` for saving plots. 
+
+For example, in the static version, we have
+```
+{r}
+save(CO2_world, file =here::here("plots", "CO2_world.rda"))
+png(here::here("plots", "CO2_world.png"))
+CO2_world
+dev.off()
+```
+In the interactive version, we have
+```
+{r, eval = FALSE}
+save(CO2_world, file =here::here("plots", "CO2_world.rda"))
+png(here::here("plots", "CO2_world.png"))
+CO2_world
+dev.off()
+```
+
+### Changed directories of "data", "docs", "img", and "plots" to "www/data", "www/docs", "www/img", and "www/plots". 
+
+For example, in the static version, we have
+```
+{r}
+load(here::here("plots", "CO2_world.rda"))
+load(here::here("plots", "Top10t.rda"))
+load(here::here("plots", "CO2_temp_US_facet.rda"))
+```
+In the interactive version, we have
+```
+{r, eval=FALSE}
+load(here::here("plots", "CO2_world.rda"))
+load(here::here("plots", "Top10t.rda"))
+load(here::here("plots", "CO2_temp_US_facet.rda"))
+
+{r, echo=FALSE}
+load("www/plots/CO2_world.rda")
+load("www/plots/Top10t.rda")
+load("www/plots/CO2_temp_US_facet.rda")
+
+```

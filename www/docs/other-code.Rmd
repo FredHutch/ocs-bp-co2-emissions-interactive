@@ -1,0 +1,618 @@
+---
+title: "Untitled"
+author: "Stephanie Hicks"
+date: "7/16/2020"
+output: html_document
+---
+
+
+<details> <summary> Click here an alternative way to create this plot without using the`top_10_count` tibble </summary>
+
+We can also create this plot directly without using the `top_10_count` tibble, by creating a new variable for the last value that we will call `last_val`, or in other words the emission value in 2014 for each country. 
+To do this we need to first use the `group_by()` function of the `dplyr` package to make sure that the last value is calculated and repeated for each row for a given country. 
+Here, we can see that that is the case for Afghanistan.
+
+```{r}
+data_long %>%
+  filter(Indicator == "Emissions", Year >= 1900) %>%
+  group_by(Country) %>%
+  mutate(last_val = last(Value))
+```
+
+We also create a `rank` variable like we did when we created `top_10_count` that will be calculated as the rank of the countries based on the `last_val` value (again this is the emission value in the last year of the data, 2014). 
+We want to `ungroup()` our data, as we want the rank to be calculated across the countries.     
+
+```{r}
+data_long %>%
+  filter(Indicator == "Emissions", Year >= 1900) %>%
+  group_by(Country) %>%
+  mutate(last_val = last(Value)) %>%
+  ungroup() %>%
+  mutate(rank = dense_rank(desc(last_val))) %>%
+  filter(rank <= 10)
+```
+
+Now we can put it all together to create the plot directly from `data_long`.
+
+```{r}
+Top10t_new <- 
+  data_long %>%
+  filter(Indicator == "Emissions", Year >= 1900) %>%
+  group_by(Country) %>%
+  mutate(last_val = last(Value)) %>%
+  ungroup() %>%
+  mutate(rank = dense_rank(desc(last_val))) %>%
+  filter(rank <= 10) %>%
+  ggplot(aes(x=Year, y=fct_reorder(Country, Value, last))) +
+    geom_tile(aes(fill=log(Value))) +
+    scale_fill_viridis_c() +
+    scale_x_continuous(breaks = seq(1900,2014,by=5),
+                       labels = seq(1900,2014,by=5)) + 
+    labs(title = "Top 10 "~CO[2]~"Emission-producing Countries in 2014",
+         subtitle = "Ordered by Emissions Produced in 2014",
+         fill = "Ln(CO2 Emissions (Mg))") +
+    theme_classic() +
+    theme(axis.text.x = element_text(size = 12, angle = 90),
+          axis.text.y = element_text(size = 12),
+          axis.title = element_blank(),
+          plot.caption = element_text(size = 12),
+          plot.title = element_text(size = 16),
+          legend.position = "bottom")
+
+Top10t_new
+```
+
+</details> 
+
+
+## Yearly Growth in GDP per Capita (1801 to 2019)
+
+Now we will take a look a GDP growth of various countries
+
+```{r}
+data_long %>%
+  filter(Indicator == "GDP") %>%
+  ggplot(aes(x = Year, y = Value, group = Country)) +
+  geom_line(alpha = 0.2) + 
+  labs(title = "Country GDP Growth per Capita per Year (Annual %), 1801-2019",
+     caption = "Limited to reporting countries",
+           y = "GDP Growth per Capita (Annual %)") +
+  geom_line(data = data_long %>%
+  filter(Indicator == "GDP",
+           Country == "United States"), 
+  aes(x=Year, y=Value, color = Country)) +
+  scale_colour_manual(values=c("red")) +
+  my_theme_no_legend
+```
+We can see that the variation in GDP has become greater over time.
+
+```{r}
+data_long %>%
+  filter(Indicator == "GDP",
+         Year >= 1801) %>%
+  group_by(Year) %>%
+  summarise(Value = mean(Value, na.rm = TRUE)) %>%
+  ggplot(aes(x=Year, y=Value)) +
+  geom_line() + 
+  labs(title = "Mean Country GDP Growth per Capita per Year (Annual %), 1801-2019",
+     caption = "Limited to reporting countries", 
+           y = "GDP Growth per Capita (Annual %)") +
+  my_theme
+```
+
+## Energy Use per Person (1960 to 2015)
+
+```{r}
+data_long %>%
+  filter(Indicator == "Energy") %>%
+ggplot(aes(x=Year, y= Value, group=Country)) +
+  geom_line(alpha = 0.2) + 
+  geom_line(data = data_long %>%
+  filter(Indicator == "Energy",
+           Country == "United States"), aes(x=Year, y=Value, color = Country)) +
+  scale_colour_manual(values=c("red")) +
+  labs(title = "Country Energy Use (kg of Oil Equivalent per Capita), 1960 to 2015",
+     caption = "Limited to reporting countries", 
+           y = "Energy Use (kg of Oil Equivalent per Capita)")+
+  my_theme_no_legend
+```
+
+Let's see who the top countries are. 
+First let's take a look at the year 2000, and then 2014.
+
+```{r}
+data_long %>%
+filter(Indicator == "Energy") %>%
+  filter(Year == 2000) %>%
+ slice_max(Value, n = 10)
+
+
+data_long %>%
+filter(Indicator == "Energy") %>%
+  filter(Year == 2014) %>%
+  slice_max(Value, n = 10)
+```
+
+
+```{r}
+data_long %>%
+  filter(Indicator == "Energy") %>%
+  group_by(Year) %>%
+  summarise(Value = sum(Value, na.rm = TRUE)) %>%
+  ggplot(aes(x = Year, y = Value)) +
+  geom_line() + 
+  labs(title = "Worldwide Energy Use (kg of Oil Equivalent per Capita), 1960 to 2015",
+     caption = "Limited to reporting countries",
+           y = "Energy Use (kg of Oil Equivalent per Capita)") +
+  my_theme
+```
+
+## Crude Mortality Rate 
+
+AVOCADO: the code chunks are giving me blank plots? I've set the eval to FALSE for now
+
+```{r, eval=FALSE}
+Mortality <- data_long %>%
+  filter(Indicator == "Deaths") %>%
+  ggplot(aes(x = Year, y = Value, group = Country)) +
+  geom_line(alpha = 0.2) + 
+  geom_line(data = data_long %>%
+  filter(Indicator == "Deaths",
+           Country == "United States",
+              Year >= 1960, 
+              Year <= 2019), 
+  aes(x = Year, y = Value, color = Country)) +
+  scale_colour_manual(values=c("red")) +
+  labs(title = "Country Crude Mortality Rate (per 1000 Persons), 1960 to 2019",
+     caption = "Limited to reporting countries",
+           y = "Crude Mortality Rate (per 1000 Persons)") +
+  my_theme_no_legend
+
+Mortality
+```
+
+Let's take a look to see which countries account for the large peaks in Morality in the late 1970s and the early 1990s. It's always a good idea to check your data if you see anomalies like this. 
+
+```{r, eval=FALSE}
+data_long %>%
+  filter(Indicator == "Deaths", Year == 1978) %>% 
+  slice_max(Value, n = 3)
+```
+
+Looks like Cambodia is the country with the large peak in the late 1970s. If you look up the history of Cambodia during this time period, you will see that the peak we are seeing makes sense because Cambodia experienced [war](https://en.wikipedia.org/wiki/Cambodian_Civil_War){target="_blank"} and [genicide](https://en.wikipedia.org/wiki/Cambodian_genocide){target="_blank"} during this time. 
+
+```{r, eval=FALSE}
+data_long %>%
+  filter(Indicator == "Deaths", Year == 1993) %>% 
+  slice_max(Value, n = 3)
+```
+Rwanda is the country with the peak in the early 1990s. This also makes sense because Rwanda experienced a [civil war](https://en.wikipedia.org/wiki/Rwandan_Civil_War){target="_blank"} at this time. 
+
+What about now? What countries have the highest rates?
+
+```{r, eval=FALSE}
+data_long %>%
+   filter(Indicator == "Deaths", Year == 2017) %>% 
+  slice_max(Value, n = 10)
+```
+It seems that many eastern European countries currently have the highest mortality rates, as well as [Lesotho](https://apps.who.int/iris/bitstream/handle/10665/136910/ccsbrief_lso_en.pdf;jsessionid=227D2B563F133AE2054046887D2D905D?sequence=1){target="_blank"}.
+
+Let's make a plot of just these countries:
+```{r, eval=FALSE}
+Mortality <-data_long %>%
+  filter(Indicator == "Deaths") %>%
+  group_by(Country) %>%
+  mutate(last_val = last(Value)) %>%
+  ungroup() %>%
+  mutate(rank = dense_rank(desc(last_val))) %>%
+  filter(rank <= 5) %>%
+  ggplot(aes(x = Year, y = Value, color = Country)) +
+  geom_line() + 
+  scale_color_viridis_d()+
+  labs(title = "Country Crude Mortality Rate (per 1000 Persons), 1960 to 2019",
+     caption = "Limited to reporting countries",
+           y = "Crude Mortality Rate (per 1000 Persons)") +
+  my_theme_no_legend
+
+direct.label(Mortality, method = list("angled.boxes"))
+```
+With the exception of Lesotho, we can see that the mortality rate appears to be steadily increasing in these countries. 
+
+What countries have the lowest reported rates? We can simply alter our plot code to not use the descending value to rank mortality. 
+
+```{r, eval=FALSE}
+Mortality <-data_long %>%
+  filter(Indicator == "Deaths") %>%
+  group_by(Country) %>%
+  mutate(last_val = last(Value)) %>%
+  ungroup() %>%
+  mutate(rank = dense_rank(last_val)) %>%
+  filter(rank <= 5) %>%
+  ggplot(aes(x = Year, y = Value, color = Country)) +
+  geom_line() + 
+  scale_color_viridis_d()+
+  labs(title = "Country Crude Mortality Rate (per 1000 Persons), 1960 to 2019",
+     caption = "Limited to reporting countries",
+           y = "Crude Mortality Rate (per 1000 Persons)") +
+  my_theme_no_legend
+
+direct.label(Mortality, method = list("angled.boxes")) + 
+  scale_x_continuous(expand = c(0.3,0))
+```
+Looks like many countries in the Persian Gulf region have the lowest rates of mortality. 
+
+Let's make a plot of some of the countries that showed unusual patterns over time. We will include the US for comparison.
+
+```{r, eval=FALSE}
+data_long %>%
+  filter(Indicator == "Deaths",
+            Country %in% c("United States", 
+                           "Rwanda", 
+                           "Cambodia", 
+                           "Qatar", 
+                           "Bulgaria"))%>%
+  ggplot(aes(x = Year, y = Value, color = Country)) +
+  geom_line() + 
+  labs(title = " Crude Mortality Rate (per 1000 Persons), 1960 to 2019",
+     caption = "Limited to reporting countries",
+           y = "Crude Mortality Rate (per 1000 Persons)") +
+  my_theme
+```
+
+We can make a similar plot where each country is shown side by side by using the `facet_grid()` function of the `ggplot2` package. We need to indicate what variable we would like to use to group the data by and indicate it with this symbol `~`. If we include a period (to indicate all other variables) we can change the orientation of the plots:
+
+1) `.~variable` plots the subplots horizontally (plot the facet variable like the x axis)
+2) `variable ~.` plots the subplots vertically  (plot the facet variable like the y axis)
+
+```{r, eval=FALSE}
+data_long %>%
+  filter(Indicator == "Deaths",
+            Country %in% c("United States", 
+                           "Rwanda", 
+                           "Cambodia", 
+                           "Qatar", 
+                           "Bulgaria"))%>%
+  ggplot(aes(x = Year, y = Value)) +
+  geom_line() + 
+  facet_grid(.~ Country)+
+  labs(title = " Crude Mortality Rate (per 1000 Persons), 1960 to 2019",
+     caption = "Limited to reporting countries",
+           y = "Crude Mortality Rate (per 1000 Persons)") +
+  my_theme
+```
+
+We can see that recently the US has actually had higher mortality rates than Rwanda and Cambodia.
+
+Let's see how the US ranks.
+
+```{r, eval=FALSE}
+data_long %>%
+  filter(Indicator == "Deaths") %>%
+       filter(Year == 2014) %>%
+  group_by(Country) %>%
+  mutate(last_val = last(Value)) %>%
+  ungroup() %>%
+  mutate(rank = dense_rank(desc(last_val)))%>%
+  filter(Country == "United States")
+```
+
+The US ranked 68 out of 212 countries in 2014. This means that roughly 70% of the countries included had lower mortality rates than the US. See [here](https://www.healthsystemtracker.org/chart-collection/mortality-rates-u-s-compare-countries/#item-overall-age-adjusted-mortality-rate-decline-1980-2015){target="_blank"} and [here](https://www.drugabuse.gov/drug-topics/trends-statistics/overdose-death-rates){target="_blank"} for more information about mortality rates in the US. 
+
+#### {.question_block}
+Question Opportunity
+How would you determine the total number of countries reporting in 2014?
+####
+
+Let's see what the overall trend in mortality has been over time.
+```{r, eval=FALSE}
+
+data_long %>%
+  filter(Indicator == "Deaths") %>%
+   group_by(Year) %>%
+  summarise(Value = mean(Value, na.rm = TRUE)) %>%
+  ggplot(aes(x = Year, y = Value)) +
+  geom_line(size = 1.4) + 
+  labs(title = "Mean Country Crude Mortality Rate (per 1000 Persons), 1960 to 2018",
+     caption = "Limited to reporting countries",
+           y = "Crude Mortality Rate (per 1000 Persons)") +
+  my_theme
+```
+We can see that despite some countries with different patterns of mortality, overall the world has experienced much lower rates of mortality than in previous decades.
+
+## US Disasters
+
+Now let's take a look at the disaster data for the US.
+
+```{r}
+data_long %>%
+  filter(Indicator == "Disasters") %>%
+  ggplot(aes(x = Year, y = Value, group = Country)) +
+  geom_line() + 
+  labs(title = "US Disasters, 1980 to 2019",
+    subtitle = "Droughts, Floods, Freezes, Severe Storms. Tropical Cyclones, Wildfires, and Winter Storms", 
+           y = "Disaster Count") +
+  my_theme
+  
+```
+ 
+In general, it appears that temperatures have increased over time. We can add another `ggplot2` layer by using the `geom_smooth()` to add a trend line. There are several methods to do this. We will use the `loess` method which stands for: [Locally Weighted Smoothing](https://www.statisticshowto.com/lowess-smoothing){target="_blank"}. This method fits a trend to the data but does not assume that the trend will fit a particular shape.
+ 
+```{r}
+data_long %>%
+  filter(Indicator == "Disasters") %>%
+  ggplot(aes(x = Year, y = Value, group = Country)) +
+  geom_line() + 
+  geom_smooth(method = "loess") +
+  labs(title = "US Disasters, 1980 to 2019",
+    subtitle = "Droughts, Floods, Freezes, Severe Storms. Tropical Cyclones, Wildfires, and Winter Storms", 
+           y = "Disaster Count") +
+  my_theme
+```
+
+We can see that the rate of disasters appears to be increasing over time. The added geom_smooth layer has added a blue trend line with the gray indicating the confidence interval of the trend line. 
+
+But what is a confidence interval?
+
+A confidence interval gives an estimated range of values which is likely to include the true values of the entire population (for example all women in the US) if we are using just a small sample (for example 200 women in the US that take a survey) of the entire population. See [here](https://mathbitsnotebook.com/Algebra1/StatisticsData/STPopSample.html){target="_blank"} for more explanation about samples and populations.
+
+Thus the gray area shows other possible trend lines that may fit the data of the actual population. 
+
+```{r, echo = FALSE, out.width = "800 px"}
+knitr::include_graphics('https://i1.wp.com/www.real-statistics.com/wp-content/uploads/2012/12/confidence-prediction-interval.png?w=860')
+```
+
+[[source]](http://www.real-statistics.com/regression/confidence-and-prediction-intervals/){target="_blank"}
+
+We could think of our data as the entire population. We have the actual counts for the number of disasters (based on specific definitions of disasters) that occurred in the US each year from 1980 to 2010. Therefore, we would not need to calculate confidence intervals so we can remove them from our plot by using the `se = FALSE` argument of the `geom_smooth()` function of `ggplot2`. Confidence intervals are plotted by default as data is more often from a small sample of true populations and we  try to generalize our trends based our sample to the true population.
+
+
+```{r}
+data_long %>%
+  filter(Indicator == "Disasters") %>%
+  ggplot(aes(x = Year, y = Value, group = Country)) +
+  geom_line() + 
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(title = "US Disasters, 1980 to 2019",
+    subtitle = "Droughts, Floods, Freezes, Severe Storms. Tropical Cyclones, Wildfires, and Winter Storms", 
+           y = "Disaster Count") +
+  my_theme
+```
+
+
+## US Temperature
+
+How about national average temperatures in the US?
+
+```{r}
+data_long %>%
+  filter(Indicator == "Temperature") %>%
+  ggplot(aes(x = Year, y = Value, group = Country)) +
+  geom_line() + 
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(title = "US Average Annual Temperature, 1895 to 2019",
+           y =  "Temperature (Fahrenheit)") +
+  my_theme
+```
+Temperatures also appear to be rising, especially in the last 10-20 years.
+
+
+
+```{r, Animation_2, warning=FALSE, eval=FALSE}
+animation_2 <- data_long %>%
+  filter(Indicator=="Energy") %>%
+  ggplot(aes(x = Year, 
+             y = Value, 
+         group = Country, 
+         color = Region, 
+          size = Region, 
+         alpha = Region)) +
+  geom_point() +
+  scale_color_manual(values = c("Red","Black")) +
+  scale_alpha_manual(values = c(0.5, 1)) +
+   scale_size_manual(values = c(0.25, 2)) +
+  labs(title="Distribution of Indicators by Year and Value, 1980-2010",
+       y = "Energy Use per Capita") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90)) + 
+  
+  transition_time(as.integer(Year)) +
+  shadow_wake(wake_length = 1, alpha = FALSE)
+
+animate(animation_2, fps = 10, duration = 5)
+
+```
+
+
+```{r, Animation_3, warning=FALSE, eval=FALSE}
+animation_3 <- data_long %>%
+  #filter(Type=="Global") %>%
+  filter(Indicator=="GDP") %>%
+  #filter(Year>=1980) %>%
+  #filter(Year<=2010) %>%
+  ggplot(aes(x = Year, 
+             y = Value, 
+         group = Country, 
+         color = Region, 
+          size = Region, 
+         alpha = Region)) +
+  geom_point() +
+  scale_color_manual(values = c("Red","Black")) +
+  scale_alpha_manual(values = c(0.1, 1)) +
+   scale_size_manual(values = c(0.25, 2)) +
+  labs(title="Distribution of Indicators by Year and Value, 1980-2010",
+       y= "GDP Growth per Capita (%)") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  
+  transition_time(as.integer(Year)) +
+  shadow_wake(wake_length = 1, alpha = FALSE)
+
+animate(animation_3, fps = 10, duration = 5)
+```
+
+```{r, Animation_4, warning=FALSE, eval=FALSE}
+animation_4 <- data_long %>%
+  #filter(Type=="Global") %>%
+  filter(Indicator=="Emissions") %>%
+  #filter(Year>=1980) %>%
+  #filter(Year<=2010) %>%
+  ggplot(aes(x = Year,
+             y = Value, 
+         group = Country, 
+         color = Region, 
+          size = Region, 
+         alpha = Region)) +
+  geom_point() +
+  scale_color_manual(values = c("Red","Black")) +
+  scale_alpha_manual(values = c(0.1, 1)) +
+   scale_size_manual(values = c(0.25, 2)) +
+  labs(title = "Distribution of Indicators by Year and Value, 1980-2010",
+           y = "CO2 Emissions (Mg)") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  transition_time(as.integer(Year)) +
+  shadow_wake(wake_length = 1, alpha = FALSE)
+
+animate(animation_4, fps = 10, duration = 5)
+```
+
+
+
+## Time spans of data
+
+Let's take a look at the reporting countries for each year for each type of data for the global indicators. To calculate the number of reporting countries we will use the `tally()` function of the `dplyr` package to get the count for each year and indicator. Thus we will first group by  year and the `Label` variable (as a proxy for the `Indicator` variable), as this also specifies the different indicators but with additional information and formatting so that we can have nice labels in our plot.
+
+We can add also vertical lines to our plot using the `geom_vline()` function  of the `ggplot2` package.
+
+```{r}
+data_long %>%
+   filter(Indicator != "Disasters" &
+          Indicator != "Temperature") %>%
+  group_by(Year, Label) %>%
+  tally() %>%
+  ggplot(aes(x = Year, y = n, color = Label)) +
+  geom_line() +
+  geom_vline(xintercept = 1980, linetype = 2, color = "black") +
+  geom_vline(xintercept = 2014, linetype = 2, color = "black") +
+  labs(title = "Countries with Complete Data per Year",
+    subtitle = "Global Data", 
+           y = "Countries") + 
+  scale_x_continuous(breaks = seq(1750,2020,by=10),
+                     labels = seq(1750,2020,by=10)) +
+  theme(axis.text.x = element_text(angle = 90),
+       axis.title.x = element_blank(),
+    legend.position = "bottom") +
+  my_theme + 
+  theme(axis.text.x = element_text(size = 12, angle = 90),
+        legend.title = element_blank())
+```
+
+We can see that all of our data spans from 1980 to 2014.
+
+
+Now we will plot a segment line for the span using `geom_segment()` and points for the first years and last years using `geom_point()`. This time we will add horizontal lines using `geom_hline()` to show where the time spans overlap.
+
+```{r}
+data_long %>%
+  filter(Country == "United States") %>%
+  group_by(Label) %>%
+  summarize(First_year = min(Year), Last_year = max(Year)) %>%
+  ggplot(aes(y = Label, x = Last_year)) +
+  geom_segment(aes(y = Label,
+                yend = Label,
+                xend = Last_year,
+                   x = First_year )) +
+  geom_point(aes(y = Label, x = First_year)) +
+  geom_point(aes(y = Label, x = Last_year)) + 
+  geom_vline(xintercept = 1980, linetype=2) +
+  geom_vline(xintercept = 2014, linetype=2) +
+  labs(title = "Complete Data per Year",
+    subtitle = "US-specific Data", 
+           y = "Countries") + 
+  scale_x_continuous(breaks = seq(1750,2020,by=10),
+                      labels = seq(1750,2020,by=10)) +
+  my_theme + 
+  theme(axis.text.x = element_text(size = 12,angle = 90),
+        axis.title = element_blank())
+```
+It looks like the overlapping time spans for the different data sets is from 1980 to 2014.
+
+
+
+### Animated plots
+
+We can make an animation of this plot using the `gganimate` package.
+We will use the `shadow_wake()` function to create our animation and the `annimate()` function to show it. 
+
+AVOCADO: Michael -- could you add more text here explaining how to use gganimate? 
+
+```{r, Animation_1, warning=FALSE}
+animation_1 <- data_long %>%
+  filter(Indicator == "Emissions") %>%
+  ggplot(aes(x = Year, 
+             y = Value, 
+         group = Country, 
+         color = Region, 
+          size = Region, 
+         alpha = Region)) +
+  geom_point() +
+  scale_color_manual(values = c("Red","Black")) +
+  scale_alpha_manual(values = c(0.1, 1)) +
+   scale_size_manual(values = c(0.25, 2)) +
+  labs(title = "Distribution of Indicators by Year and Value, 1980-2010",
+           y = "Emissions (Metric Tonnes)") +
+  theme(axis.text.x = element_text(angle = 90)) + 
+  theme_classic() +
+  transition_time(as.integer(Year)) +
+  gganimate::shadow_wake(wake_length = 1, alpha = FALSE)
+
+gganimate::animate(animation_1, fps = 10, duration = 5)
+```
+
+Let's take a look at our data now.
+We have already plotted our US indicators across time, but we did not look at the linear trend. 
+We will do that now using geom_point() to plot the individual data points and this time we will use the `"lm"` method which stands for linear method for our `geom_smooth()` layer. 
+
+```{r}
+US_Indicators_lm <- data_long %>%
+  filter(Country=="United States")%>%
+  filter(Year>=1980) %>%
+  ggplot(aes(x=Year, y=Value)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(Label~., ncol=2, nrow=3, scales = "free_y") + 
+  labs(title = "US-specific Indicators")+ 
+  my_theme + 
+  theme(axis.text.x = element_text(angle = 90, size = 12),
+        strip.text.x = element_text(face = "bold", size = 12),
+        axis.title.y = element_blank())
+US_Indicators_lm
+```
+
+First let's create a wide tibble for our US data so that we can similarly plot our data. 
+To do this we will create a wide tibble using the `pivot_wider()` function of the `dplyr` package. 
+This function requires values for two arguments, `names_from` and `values_from`. 
+The variable that has the identity or labels for the values that you wish to create multiple new variables names from is used for the `names_from` argument. 
+The variable that contains the corresponding values for the new variables is used for the `values_from` argument.
+
+
+
+```{r}
+wide_US <- data_long %>%
+  filter(Country == "United States") %>%
+  filter(Year>=1980) %>%
+  filter(Year<=2010) %>%
+  select(-Label) %>%
+  pivot_wider(names_from = Indicator, values_from = Value)
+```
+
+
+```{r}
+wide_US %>%
+glimpse()
+```
+
+
+Both temperature and the number of disasters per year appear to increase with increased CO2 emissions, as the p value is less than 0.05 in both regressions. However, the multiple R-squared value, and Pearson's correlation coefficients were moderate for both relationships. Suggesting that the relationship is not very strong and that there are likely other factors that influence temperature and disasters besides C02 emissions. This makes sense with what we know about the earth's atmosphere. There are other greenhouse gases that contribute to warming temperatures, and the existing CO2 already in the atmosphere also traps heat and greatly impacts the temperature. Furthermore we are looking at US emissions and how they influence US temperatures, but there are also CO2 emissions produced by other countries. There are other aspects that influence disaster rate as well, such the rate of humidity levels and rainfall for fires. 
+
+While the analyses that we performed give us some indication of how these different data sets relate to one another, one would realistically want to perform a mixed effects model or growth curve analysis to account for the fact that these data are paired across time points and may vary differently with time and to include these other factors that we just discussed. ... AVOCADO needs links etc.  feel free to help this section.
