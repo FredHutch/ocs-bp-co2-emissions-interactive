@@ -1,7 +1,7 @@
 ---
 title: |
-  ![](https://opencasestudies.github.io/img/icon-bahi.png){width=120px align=left}
-  \ Exploring CO2 emissions across time
+  ![](https://opencasestudies.github.io/img/icon-bahi.png){width=120px align=left style="padding-right: 20px"}
+  Exploring CO2 emissions across time
 css: www/style.css
 output:
   html_document:
@@ -27,13 +27,15 @@ knitr::opts_chunk$set(include = TRUE, comment = NA, echo = TRUE,
                       fig.align = "center", out.width = '90%')
 library(knitr)
 library(learnr)
+library(gradethis)
+gradethis::gradethis_setup()
 ```
 
 <!-- Open all links in new tab-->  
 <base target="_blank"/> 
 
 
-<div align="center" id="google_translate_element",></div>
+<div align="left" id="google_translate_element",></div>
 
 <script type="text/javascript" src='//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'></script>
 
@@ -43,7 +45,6 @@ function googleTranslateElementInit() {
 }
 </script>
 
-<p>&nbsp;</p>
 
 #### {.outline }
 ```{r, echo = FALSE, out.width = "800 px", dpi=300}
@@ -721,18 +722,18 @@ Using what you just learned about `pivot_longer()`, `rename()`, and `mutate()` a
 
 ####
 
-```{r DV_Code1, exercise=TRUE}
+```{r DW_Code3, exercise=TRUE}
 # Try this out!
 ```
 
-```{r DV_Code1-hint-1}
+```{r DW_Code3-hint-1}
 gdp_growth %<>%
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "gdp_growth")
 ```
 
-```{r DV_Code1-hint-2}
+```{r DW_Code3-hint-2}
 gdp_growth %<>%
   pivot_longer(cols = -country,
                names_to = "Year",
@@ -740,7 +741,7 @@ gdp_growth %<>%
   rename(Country = country)
 ```
 
-```{r DV_Code1-solution}
+```{r DW_Code3-solution}
 gdp_growth %<>%
   pivot_longer(cols = -country,
                names_to = "Year",
@@ -828,6 +829,29 @@ To wrangle the `energy_use` data, we will again convert the data to long format,
 Again try to come up with the code on your own to wrangle the data.
 
 ####
+
+```{r DW_Code4, exercise=TRUE}
+# Try this out!
+```
+
+```{r DW_Code4-hint-1}
+energy_use %<>%
+  pivot_longer(cols = -country,
+               names_to = "Year",
+               values_to = "energy_use") %>%
+  rename(Country = country)
+```
+
+```{r DW_Code4-hint-2}
+energy_use %<>%
+  pivot_longer(cols = -country,
+               names_to = "Year",
+               values_to = "energy_use") %>%
+  rename(Country = country) %>%
+  mutate(Year = as.numeric(Year),
+         Label = "Energy Use (kg, oil-eq./capita)") %>%
+  rename(Energy = energy_use)
+```
 
 ***
 <details> <summary> Click here to reveal the code. </summary>
@@ -962,6 +986,10 @@ Why was it necessary to exclude the `Year` variable from the `pivot_longer()` fu
 What would happen if we did not exclude `Year`?
 
 ####
+
+```{r Dw_Code5, exercise=TRUE}
+# Try this out!
+```
 
 ### **Temperature**
 ***
@@ -1137,6 +1165,17 @@ Try to come up with the code to do this.
 
 ####
 
+```{r Dw_Code6, exercise=TRUE}
+# Try this out!
+```
+
+```{r DW_Code6-solution}
+data_long <- data_wide %>%
+  pivot_longer(cols = c(-Country, -Year, -Label),
+               names_to = "Indicator",
+               values_to = "Value")
+```
+
 ***
 <details> <summary> Click here to reveal the code. </summary>
 
@@ -1303,6 +1342,10 @@ Using only data from the US, calculate the first and last year that a value was 
 
 ####
 
+```{r Dw_Code7, exercise=TRUE}
+# Try this out!
+```
+
 To allow users to skip import and wrangling we will save the data as an RDA file as well as a CSV file as this is often useful to send our data to collaborators. We will save this in a "wrangled" subdirectory of our "data" directory of our working directory.
 
 ```{r, eval = FALSE}
@@ -1342,6 +1385,8 @@ quiz(caption = "",
 )
 ```
 
+#### {.exercise_block}
+
 We have created a dataset called `wide_format` that is in "wide" format. Write some code to convert it to "long" format. (We want 3 columns with names "ID", "Variable", and "Value".)
 
 ```{r DW_Exercise1-setup}
@@ -1365,6 +1410,102 @@ wide_format %>%
   pivot_longer(cols = -ID, names_to = "Variable", values_to = "Value")
 ```
 
+####
+
+<p>&nbsp;</p>
+
+#### {.exercise_block}
+
+`mtcars` is a built-in R dataset as shown below. Use this dataset to complete the following exercise.
+
+```{r}
+mtcars
+```
+
+Write some code that:
+
+1. Change row names of `mtcars` to the first column with column name `car` (Use the `rownames_to_column` function from the `tibble` package. See documentation [here](https://tibble.tidyverse.org/reference/rownames.html){target="_blank"}.). Name this new dataset `new.mtcars`.
+2. Only keep the `car`, `mpg`, and `cyl` columns of this `new.mtcars` dataset.
+3. Only keep the cars that have `cyl` = 4.
+4. Rearrange the dataset by `mpg` in descending order.
+
+*Note: replace the underscores("\_") with your code with one character per "\_". Click "Submit Answer" to check your answer. *
+
+```{r DW_Exercise2-setup}
+library(tidyverse)
+```
+
+```{r DW_Exercise2, exercise=TRUE, eval=FALSE}
+new.mtcars <- mtcars %>%
+  # step 1
+  rownames_to_column(var = "___") %>%
+  # step 2
+  ______(___, ___, ___) %>%
+  # step 3
+  ______(___ == _) %>%
+  # step 4
+  _______(____(mpg))
+
+# view data (Do NOT include this part when submitting your answer!)
+# new.mtcars
+```
+
+```{r DW_Exercise2-hint-1}
+# step 1:
+# The "var" argument takes the name of the column where we put the row names. What is the column name?
+```
+
+```{r DW_Exercise2-hint-2}
+# step 1:
+# The "var" argument takes the name of the column where we put the row names. What is the column name?
+
+# step 2:
+# Which function of the "dplyr" package select columns?
+```
+
+```{r DW_Exercise2-hint-3}
+# step 1:
+# The "var" argument takes the name of the column where we put the row names. What is the column name?
+
+# step 2:
+# Which function of the "dplyr" package select columns?
+
+# step 3:
+# Which function of the "dplyr" package subset rows?
+```
+
+```{r DW_Exercise2-hint-4}
+# step 1:
+# The "var" argument takes the name of the column where we put the row names. What is the column name?
+
+# step 2:
+# Which function of the "dplyr" package select columns?
+
+# step 3:
+# Which function of the "dplyr" package subset rows?
+
+# step 4:
+# Which function of the "dplyr" package reorder the data?
+# What argument do we need to arrange in descending order?
+```
+
+```{r DW_Exercise2-hint-5}
+# Next hint will show you the solution
+```
+
+```{r DW_Exercise2-solution}
+new.mtcars <- mtcars %>%
+  rownames_to_column(var = "car") %>%
+  select(car, mpg, cyl) %>%
+  filter(cyl == 4) %>%
+  arrange(desc(mpg))
+```
+
+```{r DW_Exercise2-check}
+grade_code()
+```
+
+####
 
 # **Data Visualization**
 *** 
@@ -1646,6 +1787,10 @@ We can see that many countries show a dramatic increase in emissions over time w
 - What other aesthetic  (i.e. `aes()` arguments) can be changed?
 
 ####
+
+```{r DV_Code1, exercise=TRUE}
+# Find out yourself!
+```
 
 Since we have many overlapping lines, we will make our lines slightly transparent by using the `alpha` argument. 
 
@@ -2070,6 +2215,10 @@ Why might this be preferable in certain cases?
 
 ####
 
+```{r DV_Code3, exercise=TRUE}
+# Try this out!
+```
+
 #### {.recall_code_question_block}
 <b><u> Question Opportunity </u></b>
 
@@ -2080,6 +2229,10 @@ What do you see?
 <b><u> Hint </u></b>: Use the `tally()` function in the `dplyr` package. 
 
 ####
+
+```{r DV_Code4, exercise=TRUE}
+# Your code here
+```
 
 ### Line segment plots
 
@@ -2193,6 +2346,10 @@ dev.off()
 
 ####
 
+```{r DV_Code5, exercise=TRUE}
+# Your code here
+```
+
 Next, instead of looking at the variables separately in faceted plots, let's look at the relationship between CO2 emissions and other variables directly. Thus, it is useful to have each of these indicators as their own variable.
 
 We can do this by using `pivot_wider()` to transform our long data table into a wide format. 
@@ -2265,6 +2422,10 @@ dev.off()
 
 ####
 
+```{r DV_Code6, exercise=TRUE}
+# Your code here
+```
+
 Now that we see that there might be a linear relationship between CO2 emissions and temperature, let's learn about some statistical techniques to measure the strength of that relationship. 
 
 ## **Exercise**
@@ -2297,6 +2458,7 @@ quiz(caption = "",
 )
 ```
 
+#### {.exercise_block}
 
 Suppose that we have a dataset called `weight`. Write some code to plot weight change by individual.\
 We want the plot to:
@@ -2337,7 +2499,7 @@ weight %>%
   labs(title = "Weight Change")
 ```
 
-
+####
 
 # **Data Analysis**
 ***
@@ -2610,6 +2772,11 @@ Notice that we also use the `geom_smooth(method = "lm")` function that we previo
 What does `se = FALSE` mean? Try turning it to TRUE. What happens? 
 
 ####
+
+```{r DA_Code1, exercise=TRUE}
+# Try this out!
+```
+
 ***
 <details> <summary> Click here for the answer.</summary>
 `se` stands for standard error. The gray shading shows the [confidence interval](https://stattrek.com/regression/slope-confidence-interval.aspx){target="_blank"} of the smooth line.

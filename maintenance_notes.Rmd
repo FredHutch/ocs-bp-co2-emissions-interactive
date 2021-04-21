@@ -8,16 +8,27 @@ date: "4/12/2021"
 ## Data Wrangling
 * `DW_Code1`
 * `DW_Code2`
+* `DW_Code3`
+* `DW_Code4`
+* `DW_Code5`
+* `DW_Code6`
+* `DW_Code7`
 * `DW_Quiz`
 * `DW_Exercise1`
+* `DW_Exercise2`
 
 ## Data Visualization
 * `DV_Code1`
 * `DV_Code2`
+* `DV_Code3`
+* `DV_Code4`
+* `DV_Code5`
+* `DV_Code6`
 * `DV_Quiz`
 * `DV_Exercise1`
 
 ## Analysis
+* `DA_Code1`
 * `DA_Quiz`
 
 ## Other notes
