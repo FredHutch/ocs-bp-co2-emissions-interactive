@@ -5,8 +5,6 @@ title: |
 css: www/style.css
 output:
   html_document:
-    includes:
-      in_header: www/GA_Script.Rhtml
     self_contained: yes
     code_download: yes
     highlight: tango
@@ -26,6 +24,7 @@ knitr::opts_chunk$set(include = TRUE, comment = NA, echo = TRUE,
                       message = FALSE, warning = FALSE, cache = FALSE,
                       fig.align = "center", out.width = '90%')
 library(knitr)
+library(here)
 library(learnr)
 library(gradethis)
 gradethis::gradethis_setup()
@@ -252,7 +251,7 @@ Greenhouse gas emissions are due to both natural processes and anthropogenic (hu
 These emissions are one of the contributing factors to rising global temperatures, which can have a great influence on [public health](https://www.epa.gov/climate-indicators/understanding-connections-between-climate-change-and-human-health){target="_blank"}  as illustrated in the following image:
 
 ```{r, echo = FALSE, out.width="800px"}
-knitr::include_graphics("www/img/climate_change_health_impacts.jpg")
+knitr::include_graphics(here::here("www", "img", "climate_change_health_impacts.jpg"))
 ```
 
 ##### [[source]](https://www.cdc.gov/climateandhealth/effects/default.htm){target="_blank"}
@@ -549,6 +548,11 @@ Try setting a different seed to see the difference in the output.
 
 ####
 
+```{r DW_Code1-setup}
+library(tidyverse)
+load(here("www", "data", "imported", "co2_data_imported.rda"))
+```
+
 ```{r DW_Code1, exercise=TRUE}
 set.seed()
 ```
@@ -616,7 +620,6 @@ See [here](https://en.wikipedia.org/wiki/Wide_and_narrow_data){target="_blank"} 
 We want to collapse all of the values for the emission data across the different individual year variables into one new `Emissions` variable. We will identify what year they are from by creating a new `Year` variable. The `cols =` argument allows us to specify which columns we want to pivot (or not pivot) to create these new columns. We want to keep our `country` data as an ID variable so we will exclude it using the `-` sign, by default all other columns will be used.
 
 ```{r}
-
 CO2_emissions  %<>%
   pivot_longer(cols = -country,
                names_to = "Year",
@@ -637,6 +640,17 @@ Think a moment about what the dimensions of the  `CO2_emissions` tibble are now 
 <b><u> Hint </u></b>: Checking has something to do with a unique aspect about tibbles. 
 
 ####
+
+```{r DW_Code2-setup}
+library(tidyverse)
+library(magrittr)
+load(here("www", "data", "imported", "co2_data_imported.rda"))
+
+CO2_emissions  %<>%
+  pivot_longer(cols = -country,
+               names_to = "Year",
+               values_to = "Emissions")
+```
 
 ```{r DW_Code2, exercise=TRUE}
 # Write some code to check this
@@ -721,6 +735,12 @@ We will also again change the `country` variable to be `Country` by using the `r
 Using what you just learned about `pivot_longer()`, `rename()`, and `mutate()` and without scrolling up, try to come up with the code to do the wrangling for this data.
 
 ####
+
+```{r DW_Code3-setup}
+library(tidyverse)
+library(magrittr)
+load(here("www", "data", "imported", "co2_data_imported.rda"))
+```
 
 ```{r DW_Code3, exercise=TRUE}
 # Try this out!
@@ -829,6 +849,12 @@ To wrangle the `energy_use` data, we will again convert the data to long format,
 Again try to come up with the code on your own to wrangle the data.
 
 ####
+
+```{r DW_Code4-setup}
+library(tidyverse)
+library(magrittr)
+load(here("www", "data", "imported", "co2_data_imported.rda"))
+```
 
 ```{r DW_Code4, exercise=TRUE}
 # Try this out!
@@ -987,7 +1013,17 @@ What would happen if we did not exclude `Year`?
 
 ####
 
-```{r Dw_Code5, exercise=TRUE}
+```{r DW_Code5-setup}
+library(tidyverse)
+library(magrittr)
+load(here("www", "data", "imported", "co2_data_imported.rda"))
+
+us_disaster %<>%
+  select(Year, contains("Count")) %>%
+  mutate(Disasters = rowSums(select(., -Year)))
+```
+
+```{r DW_Code5, exercise=TRUE}
 # Try this out!
 ```
 
@@ -1144,6 +1180,10 @@ data_wide %>%
   slice_sample(n = 6)
 ```
 
+```{r, eval=FALSE}
+save(data_wide, file = here::here("www", "data", "exercise", "wide_data.rda"))
+```
+
 </details> 
 </details>
 ***
@@ -1165,7 +1205,13 @@ Try to come up with the code to do this.
 
 ####
 
-```{r Dw_Code6, exercise=TRUE}
+```{r DW_Code6-setup}
+library(tidyverse)
+library(magrittr)
+load(here::here("www", "data", "exercise", "wide_data.rda"))
+```
+
+```{r DW_Code6, exercise=TRUE}
 # Try this out!
 ```
 
@@ -1342,7 +1388,13 @@ Using only data from the US, calculate the first and last year that a value was 
 
 ####
 
-```{r Dw_Code7, exercise=TRUE}
+```{r DW_Code7-setup}
+library(tidyverse)
+library(magrittr)
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
+```
+
+```{r DW_Code7, exercise=TRUE}
 # Try this out!
 ```
 
@@ -1422,12 +1474,13 @@ wide_format %>%
 mtcars
 ```
 
-Write some code that:
+Write some code that will:
 
-1. Change row names of `mtcars` to the first column with column name `car` (Use the `rownames_to_column` function from the `tibble` package. See documentation [here](https://tibble.tidyverse.org/reference/rownames.html){target="_blank"}.). Name this new dataset `new.mtcars`.
-2. Only keep the `car`, `mpg`, and `cyl` columns of this `new.mtcars` dataset.
-3. Only keep the cars that have `cyl` = 4.
-4. Rearrange the dataset by `mpg` in descending order.
+1. Create a new dataset called `new.mtcars` from `mtcars`.
+2. Create a new column called `car` in `new.mtcars` that uses the values from the row names of `mtcars`. (Use the `rownames_to_column` function from the `tibble` package. See documentation [here](https://tibble.tidyverse.org/reference/rownames.html){target="_blank"}.)
+3. Only keep the `car`, `mpg`, and `cyl` columns of this `new.mtcars` dataset.
+4. Only keep the cars that have `cyl` = 4.
+5. Rearrange the dataset by `mpg` in descending order.
 
 *Note: replace the underscores("\_") with your code with one character per "\_". Click "Submit Answer" to check your answer. *
 
@@ -1452,12 +1505,12 @@ new.mtcars <- mtcars %>%
 
 ```{r DW_Exercise2-hint-1}
 # step 1:
-# The "var" argument takes the name of the column where we put the row names. What is the column name?
+# The "var" argument is the name of the new column that will use the values from the row names. What is the column name?
 ```
 
 ```{r DW_Exercise2-hint-2}
 # step 1:
-# The "var" argument takes the name of the column where we put the row names. What is the column name?
+# The "var" argument is the name of the new column that will use the values from the row names. What is the column name?
 
 # step 2:
 # Which function of the "dplyr" package select columns?
@@ -1465,7 +1518,7 @@ new.mtcars <- mtcars %>%
 
 ```{r DW_Exercise2-hint-3}
 # step 1:
-# The "var" argument takes the name of the column where we put the row names. What is the column name?
+# The "var" argument is the name of the new column that will use the values from the row names. What is the column name?
 
 # step 2:
 # Which function of the "dplyr" package select columns?
@@ -1476,7 +1529,7 @@ new.mtcars <- mtcars %>%
 
 ```{r DW_Exercise2-hint-4}
 # step 1:
-# The "var" argument takes the name of the column where we put the row names. What is the column name?
+# The "var" argument is the name of the new column that will use the values from the row names. What is the column name?
 
 # step 2:
 # Which function of the "dplyr" package select columns?
@@ -1485,8 +1538,8 @@ new.mtcars <- mtcars %>%
 # Which function of the "dplyr" package subset rows?
 
 # step 4:
-# Which function of the "dplyr" package reorder the data?
-# What argument do we need to arrange in descending order?
+# Which function of the "dplyr" package will reorder the data?
+# What argument do we need to reorder in descending order?
 ```
 
 ```{r DW_Exercise2-hint-5}
@@ -1501,7 +1554,7 @@ new.mtcars <- mtcars %>%
   arrange(desc(mpg))
 ```
 
-```{r DW_Exercise2-check}
+```{r DW_Exercise2-check, eval=FALSE}
 grade_code()
 ```
 
@@ -1788,6 +1841,12 @@ We can see that many countries show a dramatic increase in emissions over time w
 
 ####
 
+```{r DV_Code1-setup}
+library(tidyverse)
+library(magrittr)
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
+```
+
 ```{r DV_Code1, exercise=TRUE}
 # Find out yourself!
 ```
@@ -1876,6 +1935,12 @@ We can see that China is now the top emission producing country.
 What are the bottom 10 emission producing countries in 2014?
 
 ####
+
+```{r DV_Code2-setup}
+library(tidyverse)
+library(magrittr)
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
+```
 
 ```{r DV_Code2, exercise=TRUE}
 # Write some code to find out
@@ -2215,6 +2280,12 @@ Why might this be preferable in certain cases?
 
 ####
 
+```{r DV_Code3-setup}
+library(tidyverse)
+library(magrittr)
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
+```
+
 ```{r DV_Code3, exercise=TRUE}
 # Try this out!
 ```
@@ -2229,6 +2300,12 @@ What do you see?
 <b><u> Hint </u></b>: Use the `tally()` function in the `dplyr` package. 
 
 ####
+
+```{r DV_Code4-setup}
+library(tidyverse)
+library(magrittr)
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
+```
 
 ```{r DV_Code4, exercise=TRUE}
 # Your code here
@@ -2346,6 +2423,12 @@ dev.off()
 
 ####
 
+```{r DV_Code5-setup}
+library(tidyverse)
+library(magrittr)
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
+```
+
 ```{r DV_Code5, exercise=TRUE}
 # Your code here
 ```
@@ -2421,6 +2504,17 @@ dev.off()
 - Do these trend look linear or non-linear? 
 
 ####
+
+```{r DV_Code6-setup}
+library(tidyverse)
+library(magrittr)
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
+wide_US <-
+  data_long %>%
+  filter(Country == "United States", Year >= 1980, Year <= 2014) %>%
+  select(-Label) %>%
+  pivot_wider(names_from = Indicator, values_from = Value)
+```
 
 ```{r DV_Code6, exercise=TRUE}
 # Your code here
