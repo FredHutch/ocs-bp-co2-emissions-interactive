@@ -5,6 +5,8 @@ title: |
 css: www/style.css
 output:
   html_document:
+    includes:
+       in_header: www/GA_Script.Rhtml
     self_contained: yes
     code_download: yes
     highlight: tango
@@ -1489,14 +1491,15 @@ library(tidyverse)
 ```
 
 ```{r DW_Exercise2, exercise=TRUE, eval=FALSE}
+# step 1
 new.mtcars <- mtcars %>%
-  # step 1
-  rownames_to_column(var = "___") %>%
   # step 2
-  ______(___, ___, ___) %>%
+  rownames_to_column(var = "___") %>%
   # step 3
-  ______(___ == _) %>%
+  ______(___, ___, ___) %>%
   # step 4
+  ______(___ == _) %>%
+  # step 5
   _______(____(mpg))
 
 # view data (Do NOT include this part when submitting your answer!)
@@ -1504,40 +1507,40 @@ new.mtcars <- mtcars %>%
 ```
 
 ```{r DW_Exercise2-hint-1}
-# step 1:
+# step 2:
 # The "var" argument is the name of the new column that will use the values from the row names. What is the column name?
 ```
 
 ```{r DW_Exercise2-hint-2}
-# step 1:
+# step 2:
 # The "var" argument is the name of the new column that will use the values from the row names. What is the column name?
 
-# step 2:
+# step 3:
 # Which function of the "dplyr" package select columns?
 ```
 
 ```{r DW_Exercise2-hint-3}
-# step 1:
+# step 2:
 # The "var" argument is the name of the new column that will use the values from the row names. What is the column name?
 
-# step 2:
+# step 3:
 # Which function of the "dplyr" package select columns?
 
-# step 3:
+# step 4:
 # Which function of the "dplyr" package subset rows?
 ```
 
 ```{r DW_Exercise2-hint-4}
-# step 1:
+# step 2:
 # The "var" argument is the name of the new column that will use the values from the row names. What is the column name?
 
-# step 2:
+# step 3:
 # Which function of the "dplyr" package select columns?
 
-# step 3:
+# step 4:
 # Which function of the "dplyr" package subset rows?
 
-# step 4:
+# step 5:
 # Which function of the "dplyr" package will reorder the data?
 # What argument do we need to reorder in descending order?
 ```
@@ -2284,6 +2287,14 @@ Why might this be preferable in certain cases?
 library(tidyverse)
 library(magrittr)
 load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
+my_theme <-
+  theme_linedraw() +
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+       axis.title.x = element_text(size = 12),
+       axis.title.y = element_text(size = 12),
+       plot.caption = element_text(size = 12),
+         plot.title = element_text(size = 16))
 ```
 
 ```{r DV_Code3, exercise=TRUE}
