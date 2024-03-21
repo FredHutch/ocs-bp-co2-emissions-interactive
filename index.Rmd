@@ -1437,9 +1437,9 @@ quiz(caption = "",
     allow_retry = TRUE,
     random_answer_order = TRUE
   ),
-  question("Which of the following can the `mutate()` function in the `dplyr` package do? (more than one correct answer)",
+  question("Which of the following does the `mutate()` function in the `dplyr` package help us do? (more than one correct answer)",
     answer("Select certain variables(columns) of the data.", message = "Selecting certain variables(columns) of the data is the function of the `select()` function."),
-    answer("Rename a variable.", message = "Renaming a variable is the function of the `rename()` function."),
+    answer("Rename a variable.", message = "While we could use `mutate` to rename a variable using multiple steps (create a new variable based on the an existing variable and then remove the old variable), renaming a variable is more efficient with the `rename()` function."),
     answer("Create a new variable.", correct = TRUE),
     answer("Modify an existing variable.", correct = TRUE),
     allow_retry = TRUE,
@@ -1492,7 +1492,7 @@ Write some code that will:
 3. Only keep the `car`, `mpg`, and `cyl` columns of this `new.mtcars` dataset.
 4. Only keep the cars that have `cyl` = 4.
 5. Rearrange the dataset by `mpg` in descending order.
-
+6. Check your data by looking at `new.mtcars` 
 *Note: replace the underscores("\_") with your code with one character per "\_". Click "Submit Answer" to check your answer. *
 
 ```{r DW_Exercise2-setup}
@@ -1511,8 +1511,7 @@ new.mtcars <- mtcars %>%
   # step 5
   _______(____(mpg))
 
-# view data (Do NOT include this part when submitting your answer!)
-# new.mtcars
+ new.mtcars
 ```
 
 ```{r DW_Exercise2-hint-1}
@@ -1564,6 +1563,8 @@ new.mtcars <- mtcars %>%
   select(car, mpg, cyl) %>%
   filter(cyl == 4) %>%
   arrange(desc(mpg))
+
+new.mtcars
 ```
 
 ```{r DW_Exercise2-check, eval=FALSE}
