@@ -2349,6 +2349,8 @@ load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 # Your code here
 ```
 
+
+
 ### Line segment plots
 
 There are also some other common visualization techniques that are good for showing the difference between a set of observations and a mean value across time. 
