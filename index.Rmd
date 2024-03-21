@@ -1384,7 +1384,7 @@ data_long %>%
 #### {.recall_code_question_block}
 <b><u> Question Opportunity </u></b>
 
-Using only data from the US, calculate the first and last year that a value was reported for each variable (e.g. CO2 emissions, energy use, etc). 
+Taking the `data_long` object, and using only data from the US, calculate the first and last year that a value was reported for each Label (e.g. CO2 emissions, energy use, etc). 
 
 <b><u> Hint </u></b>: Use the `group_by()` and `summarize()` functions in the `dplyr` package. 
 
@@ -1398,6 +1398,15 @@ load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 
 ```{r DW_Code7, exercise=TRUE}
 # Try this out!
+```
+
+
+```{r, DW_Code7-solution}
+data_long %>%
+  filter(Country == "United States") %>%
+    group_by(Label) %>% 
+    summarize(first_reported_year = min(Year),
+              last_reported_year = max(Year))
 ```
 
 To allow users to skip import and wrangling we will save the data as an RDA file as well as a CSV file as this is often useful to send our data to collaborators. We will save this in a "wrangled" subdirectory of our "data" directory of our working directory.
