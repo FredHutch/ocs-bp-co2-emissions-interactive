@@ -556,7 +556,7 @@ load(here("www", "data", "imported", "co2_data_imported.rda"))
 ```
 
 ```{r DW_Code1, exercise=TRUE}
-set.seed()
+#set.seed() #fill in the set.seed function with a number and uncomment it by removing the `#`
 ```
 
 ```{r DW_Code1-solution}
@@ -1492,7 +1492,8 @@ Write some code that will:
 3. Only keep the `car`, `mpg`, and `cyl` columns of this `new.mtcars` dataset.
 4. Only keep the cars that have `cyl` = 4.
 5. Rearrange the dataset by `mpg` in descending order.
-6. Check your data by looking at `new.mtcars` 
+6. Check your data by looking at the full `new.mtcars` object.
+
 *Note: replace the underscores("\_") with your code with one character per "\_". Click "Submit Answer" to check your answer. *
 
 ```{r DW_Exercise2-setup}
@@ -1511,7 +1512,7 @@ new.mtcars <- mtcars %>%
   # step 5
   _______(____(mpg))
 
- new.mtcars
+new.mtcars
 ```
 
 ```{r DW_Exercise2-hint-1}
@@ -1858,12 +1859,28 @@ We can see that many countries show a dramatic increase in emissions over time w
 library(tidyverse)
 library(magrittr)
 load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
+my_theme <-
+  theme_linedraw() +
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+       axis.title.x = element_text(size = 12),
+       axis.title.y = element_text(size = 12),
+       plot.caption = element_text(size = 12),
+         plot.title = element_text(size = 16))
 ```
 
 ```{r DV_Code1, exercise=TRUE}
 # Find out yourself!
 ```
 
+```{r DV_Code1-hint-1}
+data_long %>%
+  filter(Indicator == "Emissions") %>%
+  ggplot(aes(x = Year, y = Value)) +
+  geom_line() +
+  ylab("Emissions") +
+  my_theme
+```
 Since we have many overlapping lines, we will make our lines slightly transparent by using the `alpha` argument. 
 
 This takes values from 0 to 1, where 0 is completely transparent and 1 is completely opaque. 
