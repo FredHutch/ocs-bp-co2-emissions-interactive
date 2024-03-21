@@ -1384,7 +1384,7 @@ data_long %>%
 #### {.recall_code_question_block}
 <b><u> Question Opportunity </u></b>
 
-Taking the `data_long` object, and using only data from the US, calculate the first and last year that a value was reported for each Label (e.g. CO2 emissions, energy use, etc). 
+Taking the `data_long` object, and using only data from the US, calculate the first and last year that a value was reported for each Label (e.g. CO2 emissions, energy use, etc). Do not save this data, but simply view it but not reassigning `data_long`. 
 
 <b><u> Hint </u></b>: Use the `group_by()` and `summarize()` functions in the `dplyr` package. 
 
@@ -1437,7 +1437,7 @@ quiz(caption = "",
     allow_retry = TRUE,
     random_answer_order = TRUE
   ),
-  question("Which of the following can the `mutate()` function in the `dplyr` package do? (more than one correct answers)",
+  question("Which of the following can the `mutate()` function in the `dplyr` package do? (more than one correct answer)",
     answer("Select certain variables(columns) of the data.", message = "Selecting certain variables(columns) of the data is the function of the `select()` function."),
     answer("Rename a variable.", message = "Renaming a variable is the function of the `rename()` function."),
     answer("Create a new variable.", correct = TRUE),
