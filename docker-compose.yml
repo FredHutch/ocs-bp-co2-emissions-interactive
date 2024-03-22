@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+  ocs-bp-co2-emissions-interactive:
+    image: sc-registry.fredhutch.org/ocs-bp-co2-emissions-interactive:latest
+    networks:
+      - proxy
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.ocs-bp-co2-emissions-interactive.rule=Host(`ocs-bp-co2-emissions-interactive.fredhutch.org`)"
+        - "traefik.http.routers.ocs-bp-co2-emissions-interactive-secured.rule=Host(`ocs-bp-co2-emissions-interactive.fredhutch.org`)"
+        - "traefik.http.routers.ocs-bp-co2-emissions-interactive.entrypoints=web,web-secured"
+        - "traefik.http.services.ocs-bp-co2-emissions-interactive.loadbalancer.server.port=3838" # it seems you always need to give traefik a port so it 'notices' the service
+        - "traefik.http.routers.ocs-bp-co2-emissions-interactive.tls=true"
+
+networks:
+  proxy:
+    external: true
