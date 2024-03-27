@@ -748,15 +748,15 @@ load(here("www", "data", "imported", "co2_data_imported.rda"))
 # Try this out!
 ```
 
-```{r DW_Code3-hint-1}
-gdp_growth %<>%
+```{r DW_Code3-hint-1, eval = FALSE}
+gdp_growth %>% # let's check before we reassign with %<>%
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "gdp_growth")
 ```
 
 ```{r DW_Code3-hint-2}
-gdp_growth %<>%
+gdp_growth %>% # let's check before we reassign with %<>%
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "gdp_growth") %>%
@@ -863,7 +863,7 @@ load(here("www", "data", "imported", "co2_data_imported.rda"))
 ```
 
 ```{r DW_Code4-hint-1}
-energy_use %<>%
+energy_use %>% # let's check before we reassign with %<>%
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "energy_use") %>%
@@ -871,7 +871,7 @@ energy_use %<>%
 ```
 
 ```{r DW_Code4-hint-2}
-energy_use %<>%
+energy_use %>% # let's check before we reassign with %<>%
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "energy_use") %>%
