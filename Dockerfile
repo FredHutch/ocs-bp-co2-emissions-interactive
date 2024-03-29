@@ -24,11 +24,13 @@ RUN rm -rf /srv/shiny-server/
 ADD . /srv/shiny-server/
 
 
+WORKDIR /srv/shiny-server/
+
+
 RUN R -q -e "rmarkdown::render('index.Rmd')"
 
 RUN chmod -R a-w /srv/shiny-server/
 
 
-WORKDIR /srv/shiny-server/
 
 CMD R -q -f start.R
