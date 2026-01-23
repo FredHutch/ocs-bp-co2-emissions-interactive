@@ -29,6 +29,9 @@ library(knitr)
 library(here)
 library(learnr)
 library(gradethis)
+# Note: if you do not have the `gradethis` package, you will need to install it first
+# install.packages("remotes")
+# remotes::install_github("rstudio-education/gradethis")
 gradethis::gradethis_setup()
 ```
 
@@ -209,12 +212,13 @@ library(here)
 library(readxl)
 library(readr)
 library(dplyr)
-library(magrittr)
 library(stringr)
 library(purrr)
 library(tidyr)
 library(forcats)
 library(ggplot2)
+# Note: Please ensure that you have the latest version of the `ggplot2` package 
+# using update.packages("ggplot2")
 library(directlabels)
 library(ggrepel)
 library(broom)
@@ -230,7 +234,6 @@ library(patchwork)
 [`readxl`](https://readxl.tidyverse.org/){target="_blank"}  | to import the Excel file data
 [`readr`](https://readr.tidyverse.org/){target="_blank"}  | to import the csv file data
 [`dplyr`](https://dplyr.tidyverse.org/){target="_blank"}  |  to view and wrangle the data, by modifying variables, renaming variables, selecting variables, creating variables, and arranging values within a variable   
-[`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html){target="_blank"}  |  to use and reassign data objects using the `%<>%`pipe operator
 [`stringr`](https://stringr.tidyverse.org/){target="_blank"}  | to select only the first 4 characters of date data
 [`purrr`](https://purrr.tidyverse.org/){target="_blank"}  | to apply a function on a list of tibbles (tibbles are the tidyverse version of a data frame)  
 [`tidyr`](https://tidyr.tidyverse.org/){target="_blank"}  | to drop rows with `NA` values from a tibble
@@ -393,9 +396,9 @@ See [here](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Project
 To read in the files that were downloaded from the various sources as indicated in the table above, we will use the `read_xlsx()` and `read_xls()` functions of the `readxl` package to import the data from the `.xlsx` and `.xls` files, respectively. We will also use the `here()` function of the `here` package to more easily specify the path to our files relative to the directory where the .Rproj file is located. 
 
 ```{r, eval=FALSE}
-CO2_emissions <- readxl::read_xlsx(here("data","raw", "yearly_co2_emissions_1000_tonnes.xlsx"))
-gdp_growth    <- readxl::read_xlsx(here("data", "raw", "gdp_per_capita_yearly_growth.xlsx"))
-energy_use    <- readxl::read_xlsx(here("data", "raw", "energy_use_per_person.xlsx"))
+CO2_emissions <- readxl::read_xlsx(here("www", "data","raw", "yearly_co2_emissions_1000_tonnes.xlsx"))
+gdp_growth    <- readxl::read_xlsx(here("www", "data", "raw", "gdp_per_capita_yearly_growth.xlsx"))
+energy_use    <- readxl::read_xlsx(here("www", "data", "raw", "energy_use_per_person.xlsx"))
 ```
 
 ```{r, echo=FALSE}
@@ -419,7 +422,7 @@ knitr::include_graphics("www/img/Disasters.png")
 To do this, we can skip rows using the `skip = 2` argument of the `read_csv()` function. 
 
 ```{r, eval=FALSE}
-us_disaster <- readr::read_csv(here("data", "raw", "disasters.csv"), skip = 2)
+us_disaster <- readr::read_csv(here("www", "data", "raw", "disasters.csv"), skip = 2)
 ```
 
 ```{r, echo=FALSE}
@@ -449,7 +452,7 @@ A variable that is a factor has a set of particular values called levels (this c
 ***
 
 ```{r, eval=FALSE}
-us_temperature <- readr::read_csv(here("data", "raw", "temperature.csv"), skip = 4, na = "-99")
+us_temperature <- readr::read_csv(here("www", "data", "raw", "temperature.csv"), skip = 4, na = "-99")
 ```
 
 ```{r, echo=FALSE}
@@ -468,14 +471,14 @@ save(CO2_emissions,
      energy_use, 
      us_disaster, 
      us_temperature, 
-     file = here::here("data", "imported", "co2_data_imported.rda"))
+     file = here::here("www", "data", "imported", "co2_data_imported.rda"))
 ```
 
 # **Data Wrangling**
 *** 
 If you have been following along but stopped, we could load our imported data like so:
 ```{r, eval=FALSE}
-load(here::here("data", "imported", "co2_data_imported.rda"))
+load(here::here("www", "data", "imported", "co2_data_imported.rda"))
 ```
 
 ```{r, echo=FALSE}
@@ -488,7 +491,7 @@ load("www/data/imported/co2_data_imported.rda")
 An RDA file (stands for R data) of the data can be found [here](https://github.com//opencasestudies/ocs-bp-co2-emissions/tree/master/data/imported) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-co2-emissions/master/data/imported/co2_data_imported.rda). Download this file and then place it in your current working directory within a subdirectory called "imported" within a directory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily.
 
 ```{r, eval=FALSE}
-load(here::here("data", "imported", "co2_data_imported.rda"))
+load(here::here("www", "data", "imported", "co2_data_imported.rda"))
 ```
 
 ***
@@ -526,8 +529,13 @@ First, let's take a look at the CO2 data (`CO2_emissions`).
 We can use the `slice_head()` function of the `dplyr` package to see just the first rows of our data. 
 We can specify how many rows we would like to see by using the `n =` argument. 
 
-We will use the `%>%` pipe from the `magrittr` package (although it is also imported by other `tidyverse` packages, like `dplyr`), which can be used to define the input for later sequential steps. 
-This will make more sense when we have multiple sequential steps using the same data object. 
+
+We will use the `%>%` pipe from the `dplyr` package, which can be used to define the input for later sequential steps. 
+This allows us to use our `CO2_emissions` data and modify it sequentially using  multiple steps. We will start with just one step however, but we will see the utility of this soon where we will have multiple steps each having a %>% at the end into the next step. We can think of this as a "take this data and then" statement". 
+
+The `<-` assignment operator can as usual be used to reassign the object to the modified version after all the steps after the `%>%` are completed. 
+
+Let's modify `CO2_emissions` to make it more usable for making visualizations. 
 
 ```{r}
 CO2_emissions %>%
@@ -607,8 +615,6 @@ names(CO2_emissions)
 Recall, the values are emissions in metric tons, also called tonnes.
 Scrolling through the `glimpse()` function above, we can also see that there are fewer `NA` values for later years.
 
-In this next code chunk, we will introduce the `%<>%` operator from the `magrittr` package. 
-This allows us to use our `CO2_emissions` data and reassign it to a modified version at the same time. 
 Let's modify `CO2_emissions` to make it more usable for making visualizations. 
 Specifically, we will use the `pivot_longer()` function of the `dplyr` package to convert our data into what is called **"long"** format. This is also sometimes referred to as **"narrow"** format.
 
@@ -622,7 +628,7 @@ See [here](https://en.wikipedia.org/wiki/Wide_and_narrow_data){target="_blank"} 
 We want to collapse all of the values for the emission data across the different individual year variables into one new `Emissions` variable. We will identify what year they are from by creating a new `Year` variable. The `cols =` argument allows us to specify which columns we want to pivot (or not pivot) to create these new columns. We want to keep our `country` data as an ID variable so we will exclude it using the `-` sign, by default all other columns will be used.
 
 ```{r}
-CO2_emissions  %<>%
+CO2_emissions <- CO2_emissions %>% 
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "Emissions")
@@ -645,10 +651,9 @@ Think a moment about what the dimensions of the  `CO2_emissions` tibble are now 
 
 ```{r DW_Code2-setup}
 library(tidyverse)
-library(magrittr)
 load(here("www", "data", "imported", "co2_data_imported.rda"))
 
-CO2_emissions  %<>%
+CO2_emissions  <- CO2_emissions %>% 
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "Emissions")
@@ -664,13 +669,15 @@ dim(CO2_emissions)
 
 Let's say we also want to rename the `country` variable to be capitalized.
 To do this, we can use the `rename()` function of the `dplyr` package to rename this variable. 
-When renaming variables the syntax is `new-name = old-name`, where the new name is listed first before the `=`. 
+When renaming variables the syntax is `new-name = old-name`, where the new name is listed first before the `=`.
  
 You may also note that the `Year` variable is currently of class type character. We would like to change it to be numeric. To do this we will use the `mutate()` function, which is also part of the `dplyr` package. This function allows us to create and modify variables. We will also use this function to create a variable called `Label` which will have `"CO2 Emissions (Metric Tons)"` as the value for every row, to be used when we create plots later.
 
+Note that here we are now using multiple steps with our `%>%` pipe operator. So the CO2_emissions data is used to rename Contry to country and then the out put of this is taken to be mutated to have Year as a numeric variable.
+
 
 ```{r}
-CO2_emissions  %<>%
+CO2_emissions <- CO2_emissions %>% 
    dplyr::rename(Country = country) %>%
    dplyr::mutate(Year = as.numeric(Year),
                  Label = "CO2 Emissions (Metric Tons)")
@@ -740,7 +747,6 @@ Using what you just learned about `pivot_longer()`, `rename()`, and `mutate()` a
 
 ```{r DW_Code3-setup}
 library(tidyverse)
-library(magrittr)
 load(here("www", "data", "imported", "co2_data_imported.rda"))
 ```
 
@@ -749,14 +755,14 @@ load(here("www", "data", "imported", "co2_data_imported.rda"))
 ```
 
 ```{r DW_Code3-hint-1, eval = FALSE}
-gdp_growth %>% # let's check before we reassign with %<>%
+gdp_growth %>% # let's check before we reassign 
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "gdp_growth")
 ```
 
 ```{r DW_Code3-hint-2}
-gdp_growth %>% # let's check before we reassign with %<>%
+gdp_growth %>% # let's check before we reassign 
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "gdp_growth") %>%
@@ -764,7 +770,7 @@ gdp_growth %>% # let's check before we reassign with %<>%
 ```
 
 ```{r DW_Code3-solution}
-gdp_growth %<>%
+gdp_growth <- gdp_growth %>% 
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "gdp_growth") %>%
@@ -778,7 +784,7 @@ gdp_growth %<>%
 <details> <summary> Click here to reveal the code. </summary>
 
 ```{r, eval = FALSE}
-gdp_growth %<>%
+gdp_growth <- gdp_growth %>% 
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "gdp_growth") %>%
@@ -792,7 +798,7 @@ gdp_growth %<>%
 ***
 
 ```{r, echo = FALSE}
-gdp_growth %<>%
+gdp_growth <- gdp_growth %>% 
   pivot_longer(cols = -country,
            names_to = "Year",
           values_to = "gdp_growth") %>%
@@ -854,7 +860,6 @@ Again try to come up with the code on your own to wrangle the data.
 
 ```{r DW_Code4-setup}
 library(tidyverse)
-library(magrittr)
 load(here("www", "data", "imported", "co2_data_imported.rda"))
 ```
 
@@ -863,7 +868,7 @@ load(here("www", "data", "imported", "co2_data_imported.rda"))
 ```
 
 ```{r DW_Code4-hint-1}
-energy_use %>% # let's check before we reassign with %<>%
+energy_use %>% # let's check before we reassign
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "energy_use") %>%
@@ -871,7 +876,7 @@ energy_use %>% # let's check before we reassign with %<>%
 ```
 
 ```{r DW_Code4-hint-2}
-energy_use %>% # let's check before we reassign with %<>%
+energy_use %>% # let's check before we reassign
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "energy_use") %>%
@@ -885,7 +890,7 @@ energy_use %>% # let's check before we reassign with %<>%
 <details> <summary> Click here to reveal the code. </summary>
 
 ```{r, eval = FALSE}
-energy_use %<>%
+energy_use <- energy_use %>% 
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "energy_use") %>%
@@ -898,7 +903,7 @@ energy_use %<>%
 ***
 
 ```{r, echo = FALSE}
-energy_use %<>%
+energy_use <- energy_use %>% 
   pivot_longer(cols = -country,
                names_to = "Year",
                values_to = "energy_use") %>%
@@ -951,7 +956,7 @@ Selecting for the variable `Year` does not require quotes because it is the full
 
 
 ```{r}
-us_disaster %<>%
+us_disaster <- us_disaster %>% 
            select(Year, contains("Count"))
 
 us_disaster %>%
@@ -981,7 +986,7 @@ However, we can actually create and add this new variable directly to the `us_di
 We need to use the `.` notation to indicate that we are using the data that we already used as input (on the left side of the pipe) to our `mutate()` function (on the right side of our pipe), which in this case is the entire `us_disaster` tibble for our `select()` function. The output from the `select()` function will be used for the `rowSums()` function. 
 
 ```{r}
-us_disaster %<>%
+us_disaster <- us_disaster %>% 
   mutate(Disasters = rowSums(select(., -Year)))
 
 us_disaster %>%
@@ -993,7 +998,7 @@ Great, now we are going to remove some of these variables and just keep the vari
 We are also going to add a new variable called `Country` to indicate that this data is from the United States. Again this will create a new variable where every value is `United States`.
 
 ```{r}
-us_disaster %<>%
+us_disaster <- us_disaster %>% 
   dplyr::select(Year, Disasters) %>%
   mutate(Country = "United States") %>%
   pivot_longer(cols = c(-Country, -Year),
@@ -1017,10 +1022,9 @@ What would happen if we did not exclude `Year`?
 
 ```{r DW_Code5-setup}
 library(tidyverse)
-library(magrittr)
 load(here("www", "data", "imported", "co2_data_imported.rda"))
 
-us_disaster %<>%
+us_disaster <- us_disaster %>% 
   select(Year, contains("Count")) %>%
   mutate(Disasters = rowSums(select(., -Year)))
 ```
@@ -1075,7 +1079,7 @@ We just need to indicate the start and stop characters.
 In this case the start would be 1 and the 4th character would be where we want to stop, so we would use `start = 1, stop = 4`. We can do this inside of the `mutate()` function to modify the `Date` variable. In doing so, we will not need to use `pull()` to pull the values for the `Date` variable.
 
 ```{r}
-us_temperature %<>%
+us_temperature <- us_temperature %>% 
   mutate(Date = str_sub(Date, start = 1, end = 4))
 
 us_temperature
@@ -1091,7 +1095,7 @@ We also want to create an `Indicator` variable so that we can later tell what da
 Finally, we remove the `Date` variable and also order the columns just like the other us data using the `select()` function.
 
 ```{r}
-us_temperature %<>%
+us_temperature <- us_temperature %>% 
   dplyr::select(-Anomaly) %>%
   mutate(Country = "United States",
          Year = as.numeric(Date),
@@ -1209,7 +1213,6 @@ Try to come up with the code to do this.
 
 ```{r DW_Code6-setup}
 library(tidyverse)
-library(magrittr)
 load(here::here("www", "data", "exercise", "wide_data.rda"))
 ```
 
@@ -1353,7 +1356,7 @@ The new values for the new variable `Region` are indicated after the specific co
 
 
 ```{r}
-data_long %<>%
+data_long <- data_long %>% 
   mutate(Region = case_when(Country == "United States" ~ "United States",
                             Country != "United States" ~ "Rest of the World"))
 
@@ -1369,7 +1372,7 @@ data_long_with_miss <-
   data_long %>%
   arrange(Country)
 
-data_long %<>%
+data_long <- data_long %>% 
   drop_na() %>%
   arrange(Country)
 ```
@@ -1392,7 +1395,6 @@ Taking the `data_long` object, and using only data from the US, calculate the fi
 
 ```{r DW_Code7-setup}
 library(tidyverse)
-library(magrittr)
 load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 ```
 
@@ -1412,8 +1414,8 @@ data_long %>%
 To allow users to skip import and wrangling we will save the data as an RDA file as well as a CSV file as this is often useful to send our data to collaborators. We will save this in a "wrangled" subdirectory of our "data" directory of our working directory.
 
 ```{r, eval = FALSE}
-save(data_long, file = here::here("data", "wrangled", "wrangled_data.rda"))
-readr::write_csv(data_long, path = here::here("data","wrangled", "wrangled_data.csv"))
+save(data_long, file = here::here("www", "data", "wrangled", "wrangled_data.rda"))
+readr::write_csv(data_long, path = here::here("www", "data","wrangled", "wrangled_data.csv"))
 ```
 
 ## **Exercise**
@@ -1429,11 +1431,11 @@ quiz(caption = "",
     allow_retry = TRUE,
     random_answer_order = TRUE
   ),
-  question("Which one of the pipe operators (from the `magrittr` package) should be used right after a variable name if we want to perform a sequence of operations on that variable, and meanwhile, assign the final output to that variable (without redefining that variable using `<-` or `=`)?",
-    answer("`%>%`", message = "This operator cannot assign the final output to that variable."),
-    answer("`%<%`", message = "This is not a valie pipe operator."),
+  question("Which one of the pipe operators (from the `dplyr` package) should be used right after a variable name if we want to perform a sequence of operations on that variable?",
+    answer("`%>%`", correct = TRUE),
+    answer("`%<%`", message = "This is not a valid pipe operator."),
     answer("`%T>%`", message = "This is the side-effects operator."),
-    answer("`%<>%`", correct = TRUE),
+    answer("`>`", correct = "This is not a valid pipe operator"),
     allow_retry = TRUE,
     random_answer_order = TRUE
   ),
@@ -1471,6 +1473,13 @@ wide_format %>%
 ```{r DW_Exercise1-solution}
 wide_format %>%
   pivot_longer(cols = -ID, names_to = "Variable", values_to = "Value")
+```
+
+```{r DW_Exercise1-check}
+grade_this_code(
+  correct = "Good work!",
+  incorrect = "Not quite. {random_encouragement()}"
+)
 ```
 
 ####
@@ -1568,8 +1577,11 @@ new.mtcars <- mtcars %>%
 new.mtcars
 ```
 
-```{r DW_Exercise2-check, eval=FALSE}
-grade_code()
+```{r DW_Exercise2-check}
+grade_this_code(
+  correct = "Good work!",
+  incorrect = "Not quite. {random_encouragement()}"
+)
 ```
 
 ####
@@ -1580,7 +1592,7 @@ grade_code()
 If you have been following along but stopped, we could load our imported data like so:
 
 ```{r, eval=FALSE}
-load(here::here("data", "wrangled", "wrangled_data.rda"))
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 ```
 
 ```{r, echo=FALSE}
@@ -1593,7 +1605,7 @@ load("www/data/wrangled/wrangled_data.rda")
 An RDA file (stands for R data) of the data can be found [here](https://github.com//opencasestudies/ocs-bp-co2-emissions/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-co2-emissions/master/data/wrangled/wrangled_data.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily.
 
 ```{r, eval=FALSE}
-load(here::here("data", "wrangled", "wrangled_data.rda"))
+load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 ```
 
 
@@ -1857,7 +1869,6 @@ We can see that many countries show a dramatic increase in emissions over time w
 
 ```{r DV_Code1-setup}
 library(tidyverse)
-library(magrittr)
 load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 my_theme <-
   theme_linedraw() +
@@ -1968,7 +1979,6 @@ What are the bottom 10 emission producing countries in 2014?
 
 ```{r DV_Code2-setup}
 library(tidyverse)
-library(magrittr)
 load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 ```
 
@@ -2312,7 +2322,6 @@ Why might this be preferable in certain cases?
 
 ```{r DV_Code3-setup}
 library(tidyverse)
-library(magrittr)
 load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 my_theme <-
   theme_linedraw() +
@@ -2341,7 +2350,6 @@ What do you see?
 
 ```{r DV_Code4-setup}
 library(tidyverse)
-library(magrittr)
 load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 ```
 
@@ -2465,7 +2473,6 @@ dev.off()
 
 ```{r DV_Code5-setup}
 library(tidyverse)
-library(magrittr)
 load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 ```
 
@@ -2489,8 +2496,8 @@ Let's save this data as an rda file for future use and as a csv file, as this is
 We will save this in a "wrangled" subdirectory of our "data" directory of our working directory.
 
 ```{r, eval = FALSE}
-save(wide_US, file = here::here("data", "wrangled", "wrangled_US_data.rda"))
-readr::write_csv(wide_US, path = here::here("data", "wrangled", "wrangled_US_data.csv"))
+save(wide_US, file = here::here("www", "data", "wrangled", "wrangled_US_data.rda"))
+readr::write_csv(wide_US, path = here::here("www", "data", "wrangled", "wrangled_US_data.csv"))
 ```
 
 Now we can specify which indicators we want to look at, so now we can specifically look at emissions and temperature.
@@ -2547,7 +2554,6 @@ dev.off()
 
 ```{r DV_Code6-setup}
 library(tidyverse)
-library(magrittr)
 load(here::here("www", "data", "wrangled", "wrangled_data.rda"))
 wide_US <-
   data_long %>%
@@ -2633,6 +2639,13 @@ weight %>%
   labs(title = "Weight Change")
 ```
 
+```{r DV_Exercise1-check}
+grade_this_code(
+  correct = "Good work!",
+  incorrect = "Not quite. {random_encouragement()}"
+)
+```
+
 ####
 
 # **Data Analysis**
@@ -2641,7 +2654,7 @@ weight %>%
 If you are following along and stopped you could load the data you will need like so:
 
 ```{r, eval=FALSE}
-load(here::here("data", "wrangled", "wrangled_US_data.rda"))
+load(here::here("www", "data", "wrangled", "wrangled_US_data.rda"))
 ```
 
 ```{r, echo=FALSE}
@@ -2654,7 +2667,7 @@ load("www/data/wrangled/wrangled_US_data.rda")
 An RDA file (stands for R data) of the data (called `wrangled_US_data.rda`) can be found [here](https://github.com//opencasestudies/ocs-bp-co2-emissions/tree/master/data/wrangled) or slightly more directly [here](https://raw.githubusercontent.com/opencasestudies/ocs-bp-co2-emissions/master/data/wrangled/wrangled_US_data.rda). Download this file and then place it in your current working directory within a subdirectory called "wrangled" within a subdirectory called "data" to copy and paste our code. We used an RStudio project and the [`here` package](https://github.com/jennybc/here_here) to navigate to the file more easily.
 
 ```{r, eval=FALSE}
-load(here::here("data", "wrangled", "wrangled_US_data.rda"))
+load(here::here("www", "data", "wrangled", "wrangled_US_data.rda"))
 ```
 
 
@@ -3062,7 +3075,6 @@ Ask students to plot CO2 emissions and other variables (e.g. energy use) on a sc
 [`readxl`](https://readxl.tidyverse.org/){target="_blank"}  | to import the excel file data
 [`readr`](https://readr.tidyverse.org/){target="_blank"}  | to import the csv file data
 [`dplyr`](https://dplyr.tidyverse.org/){target="_blank"}  |  o view and wrangle the data, by modifying variables, renaming variables, selecting variables, creating variables, and arranging values within a variable   
-[`magrittr`](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html){target="_blank"}  |  to use and reassign data objects using the `%<>%`pipe operator
 [`stringr`](https://stringr.tidyverse.org/){target="_blank"}  | to select only the first 4 characters of date data
 [`purrr`](https://purrr.tidyverse.org/){target="_blank"}  | to apply a function on a list of tibbles (tibbles are the tidyverse version of a data frame)  
 [`tidyr`](https://tidyr.tidyverse.org/){target="_blank"}  | to drop rows with `NA` values from a tibble
